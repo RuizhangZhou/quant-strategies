@@ -15,7 +15,9 @@
       "Bash(\"C:\\Users\\zr-admin\\AppData\\Local\\miniconda3\\envs\\mhi_weekly\\python.exe\" mhi_weekly.py backtest)",
       "Bash(gh:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
