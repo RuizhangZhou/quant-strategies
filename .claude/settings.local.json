@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where python)",
+      "Bash(python:*)",
+      "Bash(conda create:*)",
+      "Bash(C:Userszr-adminAppDataLocalminiconda3Scriptsconda.exe create -n mhi_weekly python -y)",
+      "Bash(\"C:\\Users\\zr-admin\\AppData\\Local\\miniconda3\\Scripts\\conda.exe\" create -n mhi_weekly python -y)",
+      "Bash(\"C:\\Users\\zr-admin\\AppData\\Local\\miniconda3\\Scripts\\conda.exe\" activate mhi_weekly)",
+      "Bash(pip install:*)",
+      "Bash(\"C:\\Users\\zr-admin\\AppData\\Local\\miniconda3\\envs\\mhi_weekly\\Scripts\\pip.exe\" install -U yfinance pandas numpy backtrader requests-cache python-dotenv)",
+      "Bash(\"C:\\Users\\zr-admin\\AppData\\Local\\miniconda3\\envs\\mhi_weekly\\Scripts\\pip.exe\" install fredapi)",
+      "Bash(\"C:\\Users\\zr-admin\\AppData\\Local\\miniconda3\\envs\\mhi_weekly\\Scripts\\python.exe\" mhi_weekly.py advise 0.4 0.4 0.2)",
+      "Bash(\"C:\\Users\\zr-admin\\AppData\\Local\\miniconda3\\envs\\mhi_weekly\\python.exe\" mhi_weekly.py advise 0.4 0.4 0.2)",
+      "Bash(\"C:\\Users\\zr-admin\\AppData\\Local\\miniconda3\\envs\\mhi_weekly\\python.exe\" mhi_weekly.py backtest)",
+      "Bash(gh:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
