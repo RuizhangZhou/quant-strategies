@@ -17,11 +17,12 @@ LOW_MHI_WEI    = {"SPY":0.55, "GLD":0.25, "BTC":0.05, "CASH":0.15}
 HIGH_MHI_WEI   = {"SPY":0.15, "GLD":0.60, "BTC":0.05, "CASH":0.20}
 
 # 现金上限
-CASH_MAX = 0.25
+CASH_MAX = 0.35          # 提高现金上限到35%
 
-# 微调参数
-MIN_CHANGE = 0.03        # 3%以下调仓不动作
-CONFIRM_WEEKS = 2        # "两周确认"机制
+# 微调参数（优化为低频高量）
+MIN_CHANGE = 0.08        # 8%以下调仓不动作（减少小幅调整）
+CONFIRM_WEEKS = 3        # "三周确认"机制（增强信号确认）
+COMFORT_ZONE = 0.05      # 舒适区间：目标权重±5%内不调仓
 COMMISSION = 0.0005      # 5bps手续费
 USE_REAL_YIELD_TILT = True   # 启用真实利率拨杆
 USE_HY_OAS_IN_MHI   = True   # MHI中启用高收益债利差
@@ -100,9 +101,10 @@ def build_mhi():
 
 # ---------- 目标权重与拨杆 ----------
 def pick_weights(mhi_val):
-    if mhi_val <= -1.0:
+    # 调整阈值，平衡调仓频率 (±1.75)
+    if mhi_val <= -1.75:
         bucket, target = "LOW", LOW_MHI_WEI.copy()
-    elif mhi_val >= 1.0:
+    elif mhi_val >= 1.75:
         bucket, target = "HIGH", HIGH_MHI_WEI.copy()
     else:
         bucket, target = "NEUTRAL", BASE_WEIGHTS.copy()
@@ -140,18 +142,28 @@ def advise(current_weights:dict):
     bucket, target = pick_weights(mhi_val)
     target = apply_real_yield_tilt(target, ry_w, ref_date)
 
-    # 两周确认：再看上一个周五是否同分档
-    if len(mhi) >= 2:
-        prev_bucket, _ = pick_weights(float(mhi.iloc[-2]))
-        confirmed = (prev_bucket == bucket)
+    # 三周确认：检查过去三周是否都是同一分档
+    if len(mhi) >= CONFIRM_WEEKS:
+        recent_buckets = []
+        for i in range(1, CONFIRM_WEEKS + 1):
+            recent_bucket, _ = pick_weights(float(mhi.iloc[-i]))
+            recent_buckets.append(recent_bucket)
+        confirmed = len(set(recent_buckets)) == 1  # 所有分档都相同
     else:
         confirmed = True
 
     delta = {k: round(target[k] - current_weights.get(k,0.0), 4) for k in ["SPY","GLD","BTC","CASH"]}
-    # 最小变动阈值
-    for k in delta:
-        if abs(delta[k]) < MIN_CHANGE:
-            delta[k] = 0.0
+    
+    # 只在极端MHI条件下调仓，忽略舒适区间
+    if bucket == "NEUTRAL":
+        # 如果是中性区间，不调仓
+        delta = {k: 0.0 for k in ["SPY","GLD","BTC","CASH"]}
+        print("MHI in neutral zone, no rebalancing needed.")
+    else:
+        # 只在极端情况下(LOW/HIGH)才考虑最小变动阈值
+        for k in delta:
+            if abs(delta[k]) < MIN_CHANGE:
+                delta[k] = 0.0
 
     print(f"[{ref_date.date()}] MHI={mhi_val:.2f} bucket={bucket} confirmed={confirmed}")
     print("Target weights:", target)
